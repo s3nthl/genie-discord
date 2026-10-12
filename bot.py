@@ -5,6 +5,9 @@
 /ping            health check
 @Genie <text>    mention it in any channel to chat
 /digest [image]  post today's Chai Digest embed from digest.json (admins only)
+
+Post bridge: files Claude drops in the repo's posts/ folder get posted to Discord,
+then deleted from the repo (see bridge.py). Needs GITHUB_TOKEN.
 """
 import os
 import json
@@ -15,6 +18,8 @@ import discord
 from discord import app_commands
 from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
+
+from bridge import PostBridge
 
 load_dotenv()
 
@@ -45,6 +50,8 @@ class Genie(discord.Client):
         self.tree = app_commands.CommandTree(self)
 
     async def setup_hook(self):
+        self.bridge = PostBridge(self, int(GUILD_ID) if GUILD_ID else None)
+        self.loop.create_task(self.bridge.run())
         if GUILD_ID:
             guild = discord.Object(id=int(GUILD_ID))
             self.tree.copy_global_to(guild=guild)
