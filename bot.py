@@ -5,6 +5,7 @@
 /ping            health check
 @Genie <text>    mention it in any channel to chat
 /digest [image]  post today's Chai Digest embed from digest.json (admins only)
+/trade ...       build a trade alert (CSP/call + spread + LEAP/shares logic), preview, post (admins only)
 
 Post bridge: files Claude drops in the repo's posts/ folder get posted to Discord,
 then deleted from the repo (see bridge.py). Needs GITHUB_TOKEN.
@@ -20,6 +21,7 @@ from anthropic import AsyncAnthropic
 from dotenv import load_dotenv
 
 from bridge import PostBridge
+import trade
 
 load_dotenv()
 
@@ -64,6 +66,7 @@ class Genie(discord.Client):
 
 
 bot = Genie()
+trade.register(bot.tree)
 
 
 async def ask_claude(channel_id: int, speaker: str, prompt: str) -> str:
